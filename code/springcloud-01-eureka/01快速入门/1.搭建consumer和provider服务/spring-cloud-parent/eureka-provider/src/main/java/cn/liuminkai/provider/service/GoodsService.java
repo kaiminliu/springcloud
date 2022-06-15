@@ -1,9 +1,9 @@
-package provider.service;
+package cn.liuminkai.provider.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import provider.dao.GoodsDao;
-import provider.pojo.Goods;
+import cn.liuminkai.provider.dao.GoodsDao;
+import cn.liuminkai.provider.pojo.Goods;
 
 @Service
 public class GoodsService {

@@ -1,7 +1,7 @@
-package provider.dao;
+package cn.liuminkai.provider.dao;
 
 import org.springframework.stereotype.Repository;
-import provider.pojo.Goods;
+import cn.liuminkai.provider.pojo.Goods;
 
 /**
  * Goods 持久层
