@@ -248,5 +248,6 @@ Eureka Server多出了两个应用：
 ![](01Eureka快速入门/image-20220616155423508.png)
 
 
-## 5.Consumer 服务 通过从 Eureka Server 中抓取 Provider 地址 完成 远程调用
+## 5.consumer 服务 通过从 Eureka Server 中抓取 provider 地址 完成 远程调用
+
 
