@@ -46,8 +46,12 @@ Eureka 简单入门
 ```
 #### (2)编写提供方代码（启动类，entity，dao，service，controller）
 
+略
 
-> 确保能够通过浏览器访问到接口
+#### (3)启动Provider
+
+
+> 测试结果：确保能够通过浏览器访问到接口数据
 
 ### 1.4 parent下创建eureka-consumer模块
 #### (1)配置pom.xml
@@ -101,12 +105,91 @@ public Goods findGoodsById(@PathVariable("id") int id) {
 
 ### 2.2 启动服务
 启动eureka-consumer服务和eureka-provider服务
-> 确保请求consumer服务接口，能够获取到provider服务数据
+> 测试结果：确保请求consumer服务接口，能够获取到provider服务数据
 
 ## 3.搭建 Eureka Server 服务
+### 3.1 在parent项目下，创建 eureka-server 模块
+### 3.2 parent项目引入 SpringCloud 依赖
+详情参照：资料/2Eureka搭建/parent-pom.xml
+```xml
 
-## 4.改造 Provider  和 Consumer 称为 Eureka Client
+    <properties>
+        <spring-cloud.version>Greenwich.RELEASE</spring-cloud.version>
+    </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-dependencies</artifactId>
+                <version>${spring-cloud.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+```
+### 3.3 eureka-server模块引入 Eureka Server 相关依赖
+详情参照：资料/2Eureka搭建/eureka-server.xml
+```xml
+
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+		<!-- eureka-server -->
+		<dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-netflix-eureka-server</artifactId>
+        </dependency>
+    </dependencies>
+
+```
+### 3.3 eureka-server模块启动类
+
+### 3.4 添加 Eureka Server 标识
+在启动类上添加 `@EnableEurekaServer` 注解，表示该模块是一个Eureka Server
+
+### 3.3 Eureka Server相关配置
+在application.yml配置文件中添加：
+```yaml
+server:
+  port: 8761 # Eureka Server 默认端口
+
+# eureka 配置
+# eureka 一共有4部分 配置
+# 1. dashboard:eureka的web控制台配置
+# 2. server:eureka的服务端配置
+# 3. client:eureka的客户端配置
+# 4. instance:eureka的实例配置
+
+eureka:
+  instance:
+    hostname: localhost # 主机名
+  client:
+    service-url:
+      defaultZone: http://${eureka.instance.hostname}:${server.port}/eureka # eureka服务端地址，将来客户端使用该地址和eureka进行通信
+
+    register-with-eureka: false # 是否将自己的路径 注册到eureka上。eureka server 不需要的，eureka provider client 需要
+    fetch-registry: false # 是否需要从eureka中抓取路径。eureka server 不需要的，eureka consumer client 需要
+```
+> 注意：service-url 并不是用于接收eureka服务端地址的，而是其下的defaultZone，并且defaultZone在idea中不会有任何提示，需要记住他
+
+
+### 3.4 启动该模块
+浏览器访问Eureka Server服务
+```shell
+# localhost 为 Eureka Server的ip
+http://localhost:8761
+```
+
+服务启动成功
+
+![](01Eureka快速入门/image-20220616142738169.png)
+
+## 4.改造 Provider  和 Consumer 成为 Eureka Client
 
 ## 5.Consumer 服务 通过从 Eureka Server 中抓取 Provider 地址 完成 远程调用
-
 
