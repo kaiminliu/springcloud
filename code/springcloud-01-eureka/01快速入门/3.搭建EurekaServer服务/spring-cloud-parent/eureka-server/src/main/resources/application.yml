@@ -6,7 +6,7 @@ server:
 eureka:
   instance:
     hostname: localhost
-  client:
+  client: # fixme 为什么 配置EurekaServer's Service URL 需要使用 client ？？？
     service-url:
       defaultZone: http://${eureka.instance.hostname}:${server.port}/eureka
     fetch-registry: false # 是否拿去url

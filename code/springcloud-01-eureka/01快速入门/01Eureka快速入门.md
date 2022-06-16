@@ -189,7 +189,64 @@ http://localhost:8761
 
 ![](01Eureka快速入门/image-20220616142738169.png)
 
-## 4.改造 Provider  和 Consumer 成为 Eureka Client
+## 4.改造 provider  和 consumer 成为 Eureka Client
+### 4.1 provider、consumer模块引入依赖
+pom.xml
+详细参照：资料/2Eureka搭建/provider-pom.xml
+```xml
+		<!-- eureka-client  -->
+		<dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
+        </dependency>
+```
+
+### 4.2 provider、consumer模块添加 Eureka Client 标识
+在启动类上添加 `@EnableEurekaClient` 注解，表示该模块是一个Eureka Client
+> 这个注解在最新版本中无需添加，其中包含本学习项目的版本，为了识别性，建议还是要添加一下
+
+### 4.3 Eureka Client相关配置
+eureka-consumer application.yml（正式情况下，该模块既有可能是消费方，也有可能是提供方，所以register-with-eureka、fetch-registry 都使用默认配置【default=ture】）
+```yaml
+server:
+  port: 9002
+  
+eureka:
+  instance:
+    hostname: localhost # 主机名
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka # eureka服务端地址，将来客户端使用该地址和eureka进行通信
+spring:
+  application:
+    name: eureka-consumer # 设置当前应用的名称。将来会在eureka中Application显示。将来需要使用该名称来获取路径
+```
+
+eureka-provider application.yml（正式情况下，该模块既有可能是提供方，也有可能是消费方，所以register-with-eureka、fetch-registry 都使用默认配置【default=ture】）
+```yaml
+server:
+  port: 9001
+  
+eureka:
+  instance:
+    hostname: localhost # 主机名
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka # eureka服务端地址，将来客户端使用该地址和eureka进行通信
+spring:
+  application:
+    name: eureka-provider # 设置当前应用的名称。将来会在eureka中Application显示。将来需要使用该名称来获取路径
+```
+
+### 4.4 启动服务
+依次启动 eureka-server、eureka-provider、eureka-consumer
+
+访问 Eureka Server 控制台： http://localhost:8761
+
+Eureka Server多出了两个应用：
+
+![](01Eureka快速入门/image-20220616155423508.png)
+
 
 ## 5.Consumer 服务 通过从 Eureka Server 中抓取 Provider 地址 完成 远程调用
 
