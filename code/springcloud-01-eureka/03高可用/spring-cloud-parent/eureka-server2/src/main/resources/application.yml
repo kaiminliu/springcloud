@@ -1,0 +1,17 @@
+# Eureka Server Port
+server:
+  port: 8762
+
+# Eureka Server Config
+eureka:
+  instance:
+    hostname: eureka-server2
+  client:
+    service-url:
+      defaultZone: http://eureka-server1:8761/eureka # server2注册到server1
+    fetch-registry: true # 是否拿去url
+    register-with-eureka: true # 是否注册url
+
+spring:
+  application:
+    name: eureka-server-ha # 集群的应用名需一致

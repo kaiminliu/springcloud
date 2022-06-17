@@ -8,10 +8,10 @@ spring:
     name: eureka-provider # 应用名，可用于替换 RestTemplate 请求的路径名
 # Eureka Config
 eureka:
-  instance:
-    hostname: localhost
   client:
     register-with-eureka: true
     fetch-registry: true
     service-url:
-      defualtZone: http://localhost:8761/eureka # Eureka Server URL，根据实际情况编写
+      defualtZone: http://eureka-server1:8761/eureka,http://eureka-server2:8762/eureka, # Eureka Server URL，根据实际情况编写
+  instance:
+    hostname: localhost
