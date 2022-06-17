@@ -248,6 +248,47 @@ Eureka Server多出了两个应用：
 ![](01Eureka快速入门/image-20220616155423508.png)
 
 
-## 5.consumer 服务 通过从 Eureka Server 中抓取 provider 地址 完成 远程调用
+## 5.consumer 服务 通过从 Eureka Server 中抓取 provider 地址 完成 远程调用（DiscoveryClient）
+使用DiscoveryClient动态从EurekaServer中获取url
+### 5.1 引入DiscoveryClient
+#### (1)注入Bean
+```java
+// OrderController.java
+// discoveryClient使用：1.注入Bean 注入的是 org.springframework.cloud.client.discovery 包下的
+@Autowired
+private DiscoveryClient discoveryClient;
+```
+
+#### (2)激活该对象
+在consumer启动类上添加 注解 `@EnableDiscoveryClient`
+
+#### (3)调用方法
+```java
+    // eureka-consumer OrderController.java
+    @GetMapping("/goods/{id}")
+    public Goods findGoodsById(@PathVariable("id") int id) {
+        // discoveryClient使用：3.调用方法 动态获取提供方ip和端口 EUREKA-PROVIDER为提供方应用名
+        List<ServiceInstance> instances = discoveryClient.getInstances("EUREKA-PROVIDER");
+        // EurekaServer中是否有EUREKA-PROVIDER
+        if (instances == null || instances.size() == 0) {
+            // 没有
+            return null;
+        }
+        ServiceInstance provider = instances.get(0);
+        String host = provider.getHost();
+        int port = provider.getPort();
+
+        String url = "http://" + host + ":" + port + "/goods/" + id;
+
+        // 使用restTemplate调用
+        // restTemplate使用：3.调用方法
+        return restTemplate.getForObject(url, Goods.class);
+    }
+
+```
+
+### 5.2 启动服务
+依次启动 eureka-server、eureka-provider、eureka-consumer，测试consumer调用provider服务是否运行正常
+
 
 
