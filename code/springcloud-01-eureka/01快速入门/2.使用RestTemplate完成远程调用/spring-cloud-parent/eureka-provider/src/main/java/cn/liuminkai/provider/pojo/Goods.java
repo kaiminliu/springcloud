@@ -7,16 +7,16 @@ public class Goods {
 
     private int id; // id
     private String title; // 标题
-    private double prive; // 价格
+    private double price; // 价格
     private int count; // 库存
 
     public Goods() {
     }
 
-    public Goods(int id, String title, double prive, int count) {
+    public Goods(int id, String title, double price, int count) {
         this.id = id;
         this.title = title;
-        this.prive = prive;
+        this.price = price;
         this.count = count;
     }
 
@@ -36,12 +36,12 @@ public class Goods {
         this.title = title;
     }
 
-    public double getPrive() {
-        return prive;
+    public double getprice() {
+        return price;
     }
 
-    public void setPrive(double prive) {
-        this.prive = prive;
+    public void setprice(double price) {
+        this.price = price;
     }
 
     public int getCount() {
@@ -57,7 +57,7 @@ public class Goods {
         return "Goods{" +
                 "id=" + id +
                 ", title='" + title + '\'' +
-                ", prive=" + prive +
+                ", price=" + price +
                 ", count=" + count +
                 '}';
     }

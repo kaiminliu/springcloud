@@ -57,7 +57,7 @@ public class Goods {
         return "Goods{" +
                 "id=" + id +
                 ", title='" + title + '\'' +
-                ", prive=" + price +
+                ", price=" + price +
                 ", count=" + count +
                 '}';
     }
