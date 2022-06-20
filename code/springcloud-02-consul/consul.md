@@ -56,7 +56,7 @@ provider模块
 (4)测试RestTemplate远程调用
 
 #### 2.引入Consul依赖
-除了我们之前引入的web依赖，以及SpringCloud相关依赖，要使用consul，需要向所有provider、consumer（为什么consumer也需要引入，因为我们不能保证consumer是否也拥有provider的职能）引入consul相关依赖
+除了我们之前引入的web依赖，以及SpringCloud相关依赖，要使用consul，需要向所有provider、consumer引入consul相关依赖
 
 ```xml
     <dependencies>
