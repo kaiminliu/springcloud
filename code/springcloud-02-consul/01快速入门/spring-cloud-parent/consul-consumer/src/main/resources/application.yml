@@ -1,2 +1,10 @@
 server:
   port: 9002
+
+spring:
+  cloud:
+    consul:
+      host: localhost
+      port: 8500
+  application:
+    name: consul-consumer
