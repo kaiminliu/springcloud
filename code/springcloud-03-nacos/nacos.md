@@ -78,3 +78,95 @@ provider模块
     </dependency>
 </dependencies>
 ```
+
+#### 3.将服务注册到Nacos
+##### nacos-provider application.yml
+```yaml
+# server port
+server:
+  port: 9001
+
+spring:
+  cloud:
+    nacos:
+      discovery:
+        server-addr: 127.0.0.1:8848 # nacos注册中心ip和端口
+  application:
+    name: nacos-provider
+```
+
+##### nacos-consumer application.yml
+```yaml
+server:
+  port: 9002
+
+spring:
+  cloud:
+    nacos:
+      discovery:
+        server-addr: 127.0.0.1:8848 # nacos注册中心ip和端口
+  application:
+    name: nacos-consumer
+
+```
+
+
+#### 4.nacos-consumer通过nacos访问nacos-provider
+引入步骤与 ”Eureka-01快速入门-5.consumer 服务 通过从 Eureka Server 中抓取 provider 地址 完成 远程调用“，只需要修改服务名即可
+在服务消费方引入即可
+
+##### (1)注入Bean
+```java
+// nacos-consumer OrderController.java
+public class OrderController {
+    // ...
+
+    // discoveryClient使用：1.注入Bean
+    @Autowired
+    private DiscoveryClient discoveryClient;
+
+    // ...
+}
+
+```
+
+##### (2)激活Bean（必须）
+在启动类上添加
+```java
+// discoveryClient使用：2.激活Bean
+@EnableDiscoveryClient
+public class ConsumerApp { 
+    // ...
+}
+```
+
+##### (3)调用方法
+```java
+public class OrderController {
+    // ...
+    
+    @GetMapping("/goods/{id}")
+    public Goods findGoodsById(@PathVariable("id") int id) {
+        // discoveryClient使用：3.调用方法
+        List<ServiceInstance> instances = discoveryClient.getInstances("nacos-provider");
+        if (instances == null || instances.size() == 0) {
+            return null;
+        }
+        ServiceInstance provider = instances.get(0);
+        String host = provider.getHost();
+        int port = provider.getPort();
+        String url = "http://"+ host +":"+ port +"/goods/"+id;
+        System.out.println("nacos: url = " + url);
+        // 使用restTemplate调用
+        // restTemplate使用：3.调用方法 localhost:9001为服务提供方ip和端口
+        return restTemplate.getForObject(url, Goods.class);
+    }
+
+    // ...
+}
+```
+
+##### 启动服务
+依次启动startup.cmd、nacos-provider、nacos-consumer
+访问 nacos 控制台，确保nacos-provider注册成功
+确保consumer成功调用provider服务
