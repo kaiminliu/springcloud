@@ -1,11 +1,15 @@
+作用：
 1.简化远程调用
 2.客户端负载均衡
+服务端与客户端负载均衡的区别
+Nginx服务端负载均衡
 3.ribbon是集成在eureka中的
 4.负载均衡策略
 
 
 负载均衡，服务提供方只有一个模块，可以这样，先使用9000启动，再使用9001启动，那么就有两个服务了
 但是启动另一个时会停止之前的服务，所以需要做如下配置
+为了更好区分提供方和显示负载均衡的效果，这里加入一个server.port参数，并添加到返回实体上
 
 ### 快速入门
 #### 1.环境搭建
@@ -37,7 +41,7 @@ public class RestTemplateConfig {
 > 使用@LoadBalanced以后，就无法使用 ip:port 方式访问服务提供方，因为ribbon会认为 ip:port 是一个instance，这个instance在EurekaServer是不存在的，进而会报错
 
 
-#### 3.在使用RestTemplate调用方法时，使用 服务提供方应用名 替换 host:port
+#### 3.在使用RestTemplate调用方法时，使用 服务提供方应用名 替换 host:port （简化远程调用）
 ```java
 public class OrderController {
     // ...
@@ -59,6 +63,30 @@ public class OrderController {
 
     // ...
 ```
+
+
+### 负载均衡策略
+随机: RandomRule
+轮询（默认）: RoundRobinRule
+最小并发: BestAvailableRule 访问最闲
+过滤: AvailabilityFilteringRule 并发高，坏节点过滤掉
+响应时间: WeightedResponseTimeRule 发一个不影响带宽的小数据包，查看那个最快响应
+轮询重试: RetryRule 默认轮询，当服务全挂了，就会轮询10次，发现仍然没有就响应失败，轮询重试就加一轮，共11轮
+性能可用性: ZoneAvoidanceRule 
+
+### 设置负载均衡
+#### 1.方式一:编码
+1.1 在客户端启动类上添加RibbonClient注解，属性name=需要负载均衡提供方服务名，configuration=指定MyRule.class
+
+1.2 @Bean 注册对应的规则类（IRule rule()）
+
+#### 2.方式二:配置
+```yaml
+服务提供方的应用名:
+    ribbon:
+        NFloadBalancerRuleClassName: Rule全限定名
+```
+
 
 
 
