@@ -64,32 +64,6 @@ public class OrderController {
     // ...
 ```
 
-
-### 负载均衡策略
-随机: RandomRule
-轮询（默认）: RoundRobinRule
-最小并发: BestAvailableRule 访问最闲
-过滤: AvailabilityFilteringRule 并发高，坏节点过滤掉
-响应时间: WeightedResponseTimeRule 发一个不影响带宽的小数据包，查看那个最快响应
-轮询重试: RetryRule 默认轮询，当服务全挂了，就会轮询10次，发现仍然没有就响应失败，轮询重试就加一轮，共11轮
-性能可用性: ZoneAvoidanceRule 
-
-### 设置负载均衡
-#### 1.方式一:编码
-1.1 在客户端启动类上添加RibbonClient注解，属性name=需要负载均衡提供方服务名，configuration=指定MyRule.class
-
-1.2 @Bean 注册对应的规则类（IRule rule()）
-
-#### 2.方式二:配置
-```yaml
-服务提供方的应用名:
-    ribbon:
-        NFloadBalancerRuleClassName: Rule全限定名
-```
-
-
-
-
 #### 4.简化远程调用测试
 依次启动服务 eureka-server、eureka-provider、eureka-consumer
 
@@ -133,6 +107,30 @@ public class GoodsController {
 经过多次调用，发现三个provider轮询提供服务，下面取前4次结果：
 
 ![](ribbon/image-20220621095521296.png)
+
+
+### 负载均衡策略
+- 随机: RandomRule
+- 轮询（默认）: RoundRobinRule
+- 最小并发: BestAvailableRule 访问最闲
+- 过滤: AvailabilityFilteringRule 并发高，坏节点过滤掉
+- 响应时间: WeightedResponseTimeRule 发一个不影响带宽的小数据包，查看那个最快响应
+- 轮询重试: RetryRule 默认轮询，当服务全挂了，就会轮询10次，发现仍然没有就响应失败，轮询重试就加一轮，共11轮
+- 性能可用性: ZoneAvoidanceRule
+
+#### 设置负载均衡策略
+以随机策略为例：RandomRule
+##### 1.方式一:编码
+1.1 在客户端启动类上添加RibbonClient注解，属性name=需要负载均衡提供方服务名，configuration=指定MyRule.class
+
+1.2 @Bean 注册对应的规则类（IRule rule()）
+
+##### 2.方式二:配置
+```yaml
+服务提供方的应用名:
+    ribbon:
+        NFloadBalancerRuleClassName: Rule全限定名
+```
 
 
 
