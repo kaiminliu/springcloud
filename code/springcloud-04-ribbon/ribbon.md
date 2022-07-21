@@ -121,16 +121,42 @@ public class GoodsController {
 #### 设置负载均衡策略
 以随机策略为例：RandomRule
 ##### 1.方式一:编码
-1.1 在客户端启动类上添加RibbonClient注解，属性name=需要负载均衡提供方服务名，configuration=指定MyRule.class
+1.1 在客户端启动类上添加RibbonClient注解，属性name=需要负载均衡提供方服务名，configuration=指定LBRuleConfiguration.class
+```java
+@RibbonClient(name = "eureka-provider", configuration = LBRuleConfiguration.class)
+public class ConsumerApp {
+    //...
+}
+```
+1.2 客户端LBRuleConfiguration配置，并使用@Bean 注册对应的规则类（IRule rule()）
+```java
 
-1.2 @Bean 注册对应的规则类（IRule rule()）
+@Configuration
+public class LBRuleConfiguration {
 
-##### 2.方式二:配置
+    @Bean
+    public IRule rule() {
+        return new RandomRule();
+    }
+}
+
+```
+##### 2.方式二:配置（优先级高于编码）
+在客户端配置文件中配置 application.yml
 ```yaml
 服务提供方的应用名:
     ribbon:
         NFloadBalancerRuleClassName: Rule全限定名
 ```
+demo：
+```yaml
+# 配置的方式设置Ribbon的负载均衡策略
+eureka-provider: # 设置的服务提供方的 应用名称
+  ribbon:
+    NFLoadBalancerRuleClassName: com.netflix.loadbalancer.RandomRule
+```
+> 注意：上面配置没有任何提示信息，需要记下
 
-
-
+#### 测试负载均衡策略
+与“5.客户端负载均衡测试”一致，查看是否是随机分配请求
+localhost:9002/order/goods/1

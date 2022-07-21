@@ -1,12 +1,12 @@
 # server port
 #server:
 #  port: 9001
-#server:
-#  port: 9011
+server:
+  port: 9011
 #server:
 #  port: 9012
-server:
-  port: 9013
+#server:
+#  port: 9013
 
 
 spring:
