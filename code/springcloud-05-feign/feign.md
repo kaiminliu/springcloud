@@ -7,10 +7,68 @@ ribbon 虽然简化了eureka的调用，但是我们每次调用都需要写一�
 环境搭建，ribbon 改服务，应用名
 
 
+环境搭建：，修改eureka-client模块名前缀为feign，和对应模块应用名，修改父模块pom.xml
+
+
 feign可以进一步简化ribbon+restTemplate，feign是进一步的封装
 ### 快速入门
 
-#### 1.消费方引入openfeign依赖
+#### 1.环境搭建
+##### (1) 完成模块复制
+拷贝 “springcloud-04-ribbon 01快速入门 2.客户端负载均衡”下spring-cloud-parent 到 “springcloud-05-feign 01快速入门”
+
+##### (2) eureka-consumer，eureka-provider模块重命名为feign前缀
+
+##### (3) 修改pom.xml和application.yml
+###### 修改module的名字
+spring-cloud-parent的pom.xml
+```xml
+
+    <modules>
+        <module>feign-provider</module>
+        <module>feign-consumer</module>
+        <module>eureka-server</module>
+    </modules>
+
+```
+
+consumer模块（port:9002）pom.xml
+```xml
+<artifactId>feign-consumer</artifactId>
+```
+
+provider模块（port:9001）pom.xml
+```xml
+<artifactId>feign-provider</artifactId>
+```
+
+###### feign-consumer，feign-provider修改应用名
+consumer模块（port:9002）application.yml
+```yaml
+spring:
+  application:
+    name: feign-consumer
+```
+
+provider模块（port:9001）application.yml
+```yaml
+spring:
+  application:
+    name: feign-provider 
+```
+
+##### (4) 服务消费方（feign-consumer）引入openfeign依赖
+```xml
+<dependencies>
+
+    <!--feign-->
+    <dependency>
+        <groupId>org.springframework.cloud</groupId>
+        <artifactId>spring-cloud-starter-openfeign</artifactId>
+    </dependency>
+    
+</dependencies>
+```
 
 
 #### 2.启动类上开启Fegin的功能（声明式接口）
