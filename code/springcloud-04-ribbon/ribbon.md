@@ -155,7 +155,7 @@ eureka-provider: # 设置的服务提供方的 应用名称
   ribbon:
     NFLoadBalancerRuleClassName: com.netflix.loadbalancer.RandomRule
 ```
-> 注意：上面配置没有任何提示信息，需要记下
+> 注意：上面配置没有任何提示信息，需要记忆，而且NFLoadBalancerRuleClassName不要写错了
 
 #### 测试负载均衡策略
 与“5.客户端负载均衡测试”一致，查看是否是随机分配请求
