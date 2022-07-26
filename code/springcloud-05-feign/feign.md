@@ -173,20 +173,49 @@ feign:
 
 
 #### 2.日志记录
+如果我们需要查看使用 feign 请求的日志信息，需要开启日志记录的功能
+
 环境搭建：拷贝 01快速入门
-Feign只能记录debug级别的日志信息
+##### (1) 配置
+```yaml
+# 设置当前的日志级别 debug，feign只支持记录debug级别的日志
 logging:
     level:
         需要记录日志的包名: debug
+```
+示例：
+```yaml
+# 设置当前的日志级别 debug，feign只支持记录debug级别的日志
+logging:
+  level:
+    cn.liuminkai: debug
+```
 
-@Bean一个Feign的日志类
+##### (2) 创建FeignLog配置类，并转载FeignLog
+- Logger.Level
+    - NONE, 不记录
+    - BASIC, 记录基本的请求行，响应状态吗数据
+    - HEADERS, 记录基本的请求行，响应状态吗数据，记录响应头信息
+    - FULL, 记录完整的请求
+  
+```java
+@Configuration
+public class FeignLogConfig {
 
-BASIC, 记录基本的请求行，响应状态吗数据
-HEADERS, 记录基本的请求行，响应状态吗数据，记录响应头信息
-FULL,记录完整的请求
-Logger.Level level() {
-    return Logger.Level.FULL
+    @Bean
+    public Logger.Level level() {
+        return Logger.Level.FULL;
+    }
 }
+```
+##### (3) 在FeignClient注解上，configuration=FeignLogConfig.class开启日志（好像不需要这一步也可以？？？？？）
+```java
+@FeignClient(value = "feign-provider", configuration = FeignLogConfig.class)
+public interface GoodsFeignClient {}
+```
 
-在FeignClient注解上，configuration=FeginLogConfiguration.java开启日志
 
+##### (4) 请求测试
+http://localhost:9002/order/goods/feign/1
+
+![](feign/image-20220726085938846.png)
