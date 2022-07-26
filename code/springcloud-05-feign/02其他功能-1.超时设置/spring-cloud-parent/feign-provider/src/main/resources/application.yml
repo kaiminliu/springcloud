@@ -1,0 +1,26 @@
+# server port
+server:
+  port: 9001
+#server:
+#  port: 9011
+#server:
+#  port: 9012
+#server:
+#  port: 9013
+
+
+spring:
+  application:
+    name: feign-provider # 应用名，可用于替换 RestTemplate 请求的路径名
+# Eureka Config
+eureka:
+  instance:
+    hostname: localhost
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defualtZone: http://localhost:8761/eureka # Eureka Server URL，根据实际情况编写
+
+
+
