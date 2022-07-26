@@ -30,9 +30,10 @@ public class GoodsController {
         Goods one = goodsService.findOne(id);
 
         // 延时4s
-        Thread.sleep(4000);
+        //Thread.sleep(4000);
         // 延时2s
         //Thread.sleep(2000);
+        Thread.sleep(1000);
 
         // 将服务端口添加到返回对象中
         one.setTitle(one.getTitle() + ":" + port);

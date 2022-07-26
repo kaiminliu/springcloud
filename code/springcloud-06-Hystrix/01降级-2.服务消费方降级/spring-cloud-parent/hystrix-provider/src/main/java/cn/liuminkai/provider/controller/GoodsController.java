@@ -1,7 +1,5 @@
 package cn.liuminkai.provider.controller;
 
-import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
-import com.netflix.hystrix.contrib.javanica.annotation.HystrixProperty;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -27,36 +25,13 @@ public class GoodsController {
     @Value("${server.port}")
     private String port;
 
-
-
     @GetMapping("/goods/{id}")
-    // hystrix使用：2.指定降级方法
-    @HystrixCommand(
-            fallbackMethod = "findOne_fallback",
-            // HystrixCommandProperties构造器
-            commandProperties = {
-                @HystrixProperty(name="execution.isolation.thread.timeoutInMilliseconds", value = "2000")
-            }
-    )
     public Goods findOne(@PathVariable("id") int id) throws InterruptedException {
         Goods one = goodsService.findOne(id);
-
-        // 模拟降级环境
-        // 1.异常
-        int i = 1/0;
-        // 2.超时
-        //Thread.sleep(3000);
-
+        int i = 3/0;
+        //Thread.sleep(5000);
         // 将服务端口添加到返回对象中
         one.setTitle(one.getTitle() + ":" + port);
-        return one;
-    }
-
-
-    // hystrix使用：1.定义降级方法
-    public Goods findOne_fallback(int id) {
-        Goods one = goodsService.findOne(id);
-        one.setTitle("在服务提供方被降级，降级原因可能是 逻辑执行超时 或 逻辑执行异常");
         return one;
     }
 }

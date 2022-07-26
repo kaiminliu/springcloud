@@ -66,6 +66,7 @@ spring:
 ```
 
 #### 4、不用引入hystrix依赖，因为spring-cloud-starter-openfeign已经包含了
+但是需要在application.yml中开启hystrix，后面会提到
 
 #### 5、可选，修改服务消费方，OrderController.java，调用url的服务名
 FEIGN-PROVIDER 改为 HYSTRIX-PROVIDER
@@ -77,39 +78,118 @@ feign-provider 改为 hystrix-provider
 
 ### 降级
 
-#### 服务提供方降级
+#### 1、服务提供方降级
 服务异常或调用超时，返回默认数据
-1.引入hystrix依赖
-3.定义降级方法
-    # 方法的返回值需要和原方法一致
-    # 方法的参数需要与原方法一样
-    # 方法名要改
-4.原接口方法上使用@HystrixCommand注解配置降级方法
-    fallbackMethod 指定降级后调用的方法
-    commandProperties {HystrixProperty} 配置属性 属性name HystrixCommandProperties的构造器中
-        
-2.在启动类上开启Hystrix功能, @EnableC
+##### (1) 服务提供方引入hystrix依赖
+```xml
+    <!-- hystrix -->
+     <dependency>
+         <groupId>org.springframework.cloud</groupId>
+         <artifactId>spring-cloud-starter-netflix-hystrix</artifactId>
+     </dependency>
+```
+##### (2) 定义降级方法
+- 方法的返回值需要和原方法一致 
+- 方法的参数需要与原方法一样
+- 方法名要改
+
+```java
+@RestController
+@RequestMapping
+public class GoodsController {
+    // hystrix使用：1.定义降级方法
+    public Goods findOne_fallback(int id) {
+        Goods one = goodsService.findOne(id);
+        one.setTitle("在服务提供方被降级，降级原因可能是 逻辑执行超时 或 逻辑执行异常");
+        return one;
+    }
+}
+```
+
+
+##### (3) 原接口方法上使用@HystrixCommand注解配置降级方法
+- fallbackMethod 指定降级后调用的方法 
+    - commandProperties {HystrixProperty} 配置属性 属性name HystrixCommandProperties的构造器中
+```java
+@RestController
+@RequestMapping
+public class GoodsController {
+    
+    @GetMapping("/goods/{id}")
+    // hystrix使用：2.指定降级方法
+    @HystrixCommand(
+            fallbackMethod = "findOne_fallback",
+            // HystrixCommandProperties构造器
+            commandProperties = {
+                @HystrixProperty(name="execution.isolation.thread.timeoutInMilliseconds", value = "2000")
+            }
+    )
+    public Goods findOne(@PathVariable("id") int id) throws InterruptedException {
+        Goods one = goodsService.findOne(id);
+
+        // 将服务端口添加到返回对象中
+        one.setTitle(one.getTitle() + ":" + port);
+        return one;
+    }
+}
+```
+
+##### (4) 在启动类上开启Hystrix功能, @EnableCircuitBreaker
+```java
+// hystrix使用：3.开启Hystrix功能
+@EnableCircuitBreaker
+public class ProviderApp {}
+```
 
 测试
-1.制造一个异常，或超时环境
-2.请求结果
+1.制造一个异常，或超时环境 (超时环境好像不行)
+2.请求结果 (异常ok，超时不行)
 如果业务时间超过1s，我们该如何解决，commandProperties中配置即可（我不太懂ribbon的超时和hystrix超时）
 
 
 #### 服务消费方降级
 可以使用服务提供方降级的逻辑实现，但是feign中集成了hystrix，它可以简化hystrix降级的处理逻辑
-0.开启feign对hystrix的支持
+##### (1) 开启feign对hystrix的支持
+```yaml
+# 开启feign对hystrix的支持
 feign:
-    hystrix:
-        enabled:true
-1.定义feign接口实现类，复写方法，即降级方法
-加上@Component注解
-2.在@FeignClient注解中使用fallback属性设置降级处理类
+  hystrix:
+    enabled: true
+```
+##### (2) 定义feign接口实现类，复写方法，即降级方法
+
+```java
+@Component
+public class GoodsFeignClientFallback implements GoodsFeignClient {
+    
+    // 重写的方法就是降级方法
+    @Override
+    public Goods findOne(int id) {
+        return new Goods(id, "在服务消费方被降级，原因是建立连接超时", 0.0, 0);
+    }
+}
+```
+> 注意：不要忘了加上@Component注解
+
+
+##### (3) 在@FeignClient注解中使用fallback属性设置降级处理类
+```java
+@FeignClient(value = "hystrix-provider", fallback = GoodsFeignClientFallback.class)
+public interface GoodsFeignClient {}
+```
+
+##### (4) 在启动类上开启Hystrix功能, @EnableCircuitBreaker
+```java
+// hystrix使用：3.开启Hystrix功能
+@EnableCircuitBreaker
+public class ConsumerApp {}
+```
 
 测试
+连接超时、逻辑超时和抛异常都可以
 
-
-
+#### 同时配置时优先级
+优先服务提供方，当服务端宕机采用服务消费方
 
 
 ### 熔断（机制原理要重新看视频？？？？？）
