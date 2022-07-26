@@ -1,5 +1,6 @@
 package cn.liuminkai.consumer.controller;
 
+import cn.liuminkai.consumer.feign.GoodsFeignClient;
 import cn.liuminkai.consumer.pojo.Goods;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.client.ServiceInstance;
@@ -24,13 +25,17 @@ public class OrderController {
     @Autowired
     private DiscoveryClient discoveryClient;
 
+    // openFeign使用：4.1 注入该接口对象
+    @Autowired
+    private GoodsFeignClient goodsFeignClient;
+
     /**
      * discoveryClient 传统方式调用远程服务
      */
     @GetMapping("/goods/{id}")
     public Goods findGoodsById(@PathVariable("id") int id) {
         // discoveryClient使用：3.调用方法 动态获取提供方ip和端口 EUREKA-PROVIDER为提供方应用名
-        List<ServiceInstance> instances = discoveryClient.getInstances("EUREKA-PROVIDER");
+        List<ServiceInstance> instances = discoveryClient.getInstances("FEIGN-PROVIDER");
 
         // EurekaServer中是否有EUREKA-PROVIDER
         if (instances == null || instances.size() == 0) {
@@ -57,10 +62,17 @@ public class OrderController {
     public Goods findGoodsByIdUseRibbon(@PathVariable("id") int id) {
 
         // ribbon简化远程调用
-        String url = "http://EUREKA-PROVIDER/goods/" + id;
+        String url = "http://FEIGN-PROVIDER/goods/" + id;
 
         // 使用restTemplate调用
         // restTemplate使用：3.调用方法
         return restTemplate.getForObject(url, Goods.class);
+    }
+
+
+    @GetMapping("/goods/feign/{id}")
+    public Goods findGoodsByIdUseFeign(@PathVariable("id") int id) {
+        // openFeign使用：4.2 调用接口方法完成远程调用
+        return goodsFeignClient.findOne(id);
     }
 }
