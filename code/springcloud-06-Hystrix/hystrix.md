@@ -14,14 +14,68 @@
     1.能访问到服务器，当时服务挂了
     2.网络不通畅，没有访问到服务器
 3.熔断
-A调用C，C里面又调用了很多服务，而且这些服务很多都报错，那么就会降级，A调用C就一直报错，就会启动熔断机制
-把C所有的服务都拒绝掉，不管是否能够访问，拒绝之后，C的压力就减少了，可能一会之后，C就能够恢复。
-熔断器在C恢复后，A调用C也会正常调用
-
+    A调用C，C里面又调用了很多服务，而且这些服务很多都报错，那么就会降级，A调用C就一直报错，就会启动熔断机制
+    把C所有的服务都拒绝掉，不管是否能够访问，拒绝之后，C的压力就减少了，可能一会之后，C就能够恢复。
+    熔断器在C恢复后，A调用C也会正常调用
 4.限流
 
 
-copy - fegin
+### 环境搭建
+
+#### 1、完成模块复制
+拷贝 “spring-cloud-05-feign 01快速入门”下spring-cloud-parent 到 “spring-cloud-06-hystrix” 降级 或 熔断下
+
+#### 2、feign-consumer，feign-provider模块重命名为hystrix前缀
+
+
+#### 3、修改pom.xml和application.yml
+##### 修改module的名字
+spring-cloud-parent的pom.xml
+```xml
+
+    <modules>
+        <module>hystrix-provider</module>
+        <module>hystrix-consumer</module>
+        <module>eureka-server</module>
+    </modules>
+
+```
+
+consumer模块（port:9002）pom.xml
+```xml
+<artifactId>hystrix-consumer</artifactId>
+```
+
+provider模块（port:9001）pom.xml
+```xml
+<artifactId>hystrix-provider</artifactId>
+```
+
+##### hystrix-consumer，hystrix-provider修改应用名
+consumer模块（port:9002）application.yml
+```yaml
+spring:
+  application:
+    name: hystrix-consumer
+```
+
+provider模块（port:9001）application.yml
+```yaml
+spring:
+  application:
+    name: hystrix-provider 
+```
+
+#### 4、不用引入hystrix依赖，因为spring-cloud-starter-openfeign已经包含了
+
+
+#### 5、可选，修改服务消费方，OrderController.java，调用url的服务名
+FEIGN-PROVIDER 改为 HYSTRIX-PROVIDER
+
+#### 6、修改服务消费方，GoodsFeignClient.java 注解上的服务名
+feign-provider 改为 hystrix-provider
+
+
 
 ### 降级
 

@@ -24,11 +24,11 @@ feign可以进一步简化ribbon+restTemplate，feign是进一步的封装
 spring-cloud-parent的pom.xml
 ```xml
 
-    <modules>
-        <module>feign-provider</module>
-        <module>feign-consumer</module>
-        <module>eureka-server</module>
-    </modules>
+<modules>
+  <module>feign-provider</module>
+  <module>feign-consumer</module>
+  <module>eureka-server</module>
+</modules>
 
 ```
 
@@ -61,12 +61,12 @@ spring:
 ```xml
 <dependencies>
 
-    <!--feign-->
-    <dependency>
-        <groupId>org.springframework.cloud</groupId>
-        <artifactId>spring-cloud-starter-openfeign</artifactId>
-    </dependency>
-    
+  <!--feign-->
+  <dependency>
+    <groupId>org.springframework.cloud</groupId>
+    <artifactId>spring-cloud-starter-openfeign</artifactId>
+  </dependency>
+
 </dependencies>
 ```
 

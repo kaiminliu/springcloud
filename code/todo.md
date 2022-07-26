@@ -1,5 +1,6 @@
 1. 每章节概述(结合网上和ppt)
 2. eureka 常用配置
+3. hystrix 
 
 
 
