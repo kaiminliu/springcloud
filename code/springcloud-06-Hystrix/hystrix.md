@@ -27,7 +27,6 @@
 
 #### 2、feign-consumer，feign-provider模块重命名为hystrix前缀
 
-
 #### 3、修改pom.xml和application.yml
 ##### 修改module的名字
 spring-cloud-parent的pom.xml
@@ -67,7 +66,6 @@ spring:
 ```
 
 #### 4、不用引入hystrix依赖，因为spring-cloud-starter-openfeign已经包含了
-
 
 #### 5、可选，修改服务消费方，OrderController.java，调用url的服务名
 FEIGN-PROVIDER 改为 HYSTRIX-PROVIDER
@@ -114,7 +112,7 @@ feign:
 
 
 
-### 熔断（机制原理要重新看视频）
+### 熔断（机制原理要重新看视频？？？？？）
 Hystrix熔断机制，用于监控微服务调用情况，当失败的情况达到预定的阈值（5秒失败20次），会打开断路器，拒绝所有请求，直到服务恢复正常为止
 
 测试（代码看给的）
