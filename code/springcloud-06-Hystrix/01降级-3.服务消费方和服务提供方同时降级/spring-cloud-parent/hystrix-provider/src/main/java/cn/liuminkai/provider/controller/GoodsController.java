@@ -30,30 +30,25 @@ public class GoodsController {
 
 
     @GetMapping("/goods/{id}")
-    // hystrix使用：2.指定降级方法
     @HystrixCommand(
             fallbackMethod = "findOne_fallback",
-            // hystrix使用：5. 配置超时时间，详细name和value可以查看HystrixCommandProperties.java的构造器
             commandProperties = {
                     @HystrixProperty(name="execution.isolation.thread.timeoutInMilliseconds", value = "1000")
             }
     )
-    public Goods findOne(@PathVariable("id") int id) throws InterruptedException {
+    public Goods findOne(@PathVariable("id") int id) {
         Goods one = goodsService.findOne(id);
 
-        // hystrix使用：4.测试：模拟降级环境
-        // 4.1 异常
-        //int i = 1/0;
-        // 4.2 超时
-        Thread.sleep(3000);
+        // hystrix熔断测试环境模拟，id为1时，产生异常
+        if(id == 1) {
+            int i = 1/0;
+        }
 
         // 将服务端口添加到返回对象中
         one.setTitle(one.getTitle() + ":" + port);
         return one;
     }
 
-
-    // hystrix使用：1.定义降级方法
     public Goods findOne_fallback(int id) {
         Goods one = goodsService.findOne(id);
         one.setTitle("在服务提供方被降级，降级原因可能是 逻辑执行超时 或 逻辑执行异常");

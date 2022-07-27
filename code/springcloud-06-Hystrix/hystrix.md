@@ -181,7 +181,7 @@ public class GoodsController {
 
 结果没有达到预期
 
-![image-20220727145318132](hystrix/image-20220727145318132.png)
+![](hystrix/image-20220727145318132.png)
 
 ![](hystrix/image-20220727143134100.png)
 
@@ -294,6 +294,12 @@ public class ConsumerApp {}
 
 ### 熔断（机制原理要重新看视频？？？？？）
 Hystrix熔断机制，用于监控微服务调用情况，当失败的情况达到预定的阈值（5秒失败20次），会打开断路器，拒绝所有请求，直到服务恢复正常为止
+
+熔断器默认是开启的，不配置也可以
+
+支持异常
+
+https://3g.163.com/dy/article/G9FCJHN90511CUMI.html
 
 测试（代码看给的）
 
