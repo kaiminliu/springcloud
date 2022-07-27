@@ -118,11 +118,7 @@ public class GoodsController {
     @GetMapping("/goods/{id}")
     // hystrix使用：2.指定降级方法
     @HystrixCommand(
-            fallbackMethod = "findOne_fallback",
-            // HystrixCommandProperties构造器
-            commandProperties = {
-                @HystrixProperty(name="execution.isolation.thread.timeoutInMilliseconds", value = "2000")
-            }
+            fallbackMethod = "findOne_fallback"
     )
     public Goods findOne(@PathVariable("id") int id) throws InterruptedException {
         Goods one = goodsService.findOne(id);
@@ -141,10 +137,107 @@ public class GoodsController {
 public class ProviderApp {}
 ```
 
-测试
-1.制造一个异常，或超时环境 (超时环境好像不行)
-2.请求结果 (异常ok，超时不行)
-如果业务时间超过1s，我们该如何解决，commandProperties中配置即可（我不太懂ribbon的超时和hystrix超时）
+##### (5) 启动测试
+
+依次启动 eureka-server, hystrix-provider, hystrix-consumer
+
+hystrix-provider GoodsController.java 添加 服务提供方降级所需的条件，异常或超时
+```java
+
+@RestController
+@RequestMapping
+public class GoodsController {
+
+    @GetMapping("/goods/{id}")
+    // hystrix使用：2.指定降级方法
+    @HystrixCommand(
+            fallbackMethod = "findOne_fallback"
+    )
+    public Goods findOne(@PathVariable("id") int id) throws InterruptedException {
+        Goods one = goodsService.findOne(id);
+
+        // hystrix使用：4.测试：模拟降级环境
+        // 4.1 异常
+        //int i = 1/0;
+        // 4.2 超时
+        Thread.sleep(3000);
+
+        // 将服务端口添加到返回对象中
+        one.setTitle(one.getTitle() + ":" + port);
+        return one;
+    }
+}
+
+```
+
+###### 测试结果
+①降级条件：异常
+
+![](hystrix/image-20220727144813613.png)
+
+
+
+②降级条件：超时
+
+结果没有达到预期
+
+![image-20220727145318132](hystrix/image-20220727145318132.png)
+
+![](hystrix/image-20220727143134100.png)
+
+原因：http://t.zoukankan.com/wugang-p-14497236.html
+
+逻辑超时并没有触发hystrix降级，而是直接触发 ribbon 的 read timeout，在hystrix-consumer上配置ribbon超时时间ReadTimeout为5s，修改后可以降级
+
+```yaml
+ribbon:
+  ConnectTimeout: 5000 # 连接超时时间，ms
+  ReadTimeout: 5000 # 逻辑超时时间，ms
+```
+
+![](hystrix/image-20220727145446415.png)
+
+总结：
+
+- hystrix端的超时时间默认为1s，如果业务处理的时间超过就会触发降级方法，前面没有触发降级方法，是因为服务消费方feign中ribbon的超时时间也是1s，没有等到降级响应到服务消费方，就触发了ribbon的超时，抛出了异常，只要将服务消费方的ribbon超时时间配置长一点即可避免上面出现的问题。
+- 我们配置ribbon超时时间，但是hystrix默认的超时时间是1s，我们业务处理的时间不可能都小于1s，所以我们该如何解决这个问题呢？(通过注解 @HystrixCommand的commandProperties属性配置 execution.isolation.thread.timeoutInMilliseconds)
+
+```java
+
+@RestController
+@RequestMapping
+public class GoodsController {
+
+
+    @GetMapping("/goods/{id}")
+    // hystrix使用：2.指定降级方法
+    @HystrixCommand(
+            fallbackMethod = "findOne_fallback",
+            // hystrix使用：5. 配置超时时间，详细name和value可以查看HystrixCommandProperties.java的构造器
+            commandProperties = {
+                    @HystrixProperty(name="execution.isolation.thread.timeoutInMilliseconds", value = "3000")
+            }
+    )
+    public Goods findOne(@PathVariable("id") int id) throws InterruptedException {
+        Goods one = goodsService.findOne(id);
+
+        // hystrix使用：4.测试：模拟降级环境
+        // 4.1 异常
+        //int i = 1/0;
+        // 4.2 超时
+        Thread.sleep(3000);
+
+        // 将服务端口添加到返回对象中
+        one.setTitle(one.getTitle() + ":" + port);
+        return one;
+    }
+
+}
+```
+
+
+
+
 
 
 #### 服务消费方降级
@@ -185,11 +278,18 @@ public interface GoodsFeignClient {}
 public class ConsumerApp {}
 ```
 
-测试
+##### (5) 启动测试
+
+依次启动 eureka-server, hystrix-provider, hystrix-consumer
+
 连接超时、逻辑超时和抛异常都可以
 
 #### 同时配置时优先级
 优先服务提供方，当服务端宕机采用服务消费方
+
+有个问题：当服务提供方逻辑超时，无论是否设置ribbon时间，都会触发服务提供方的降级方法？？？？？
+
+原因：服务提供方已经降级过，返回给服务消费方已经是正常的响应信息，所以不会触发消费方的降级
 
 
 ### 熔断（机制原理要重新看视频？？？？？）

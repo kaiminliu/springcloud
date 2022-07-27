@@ -9,7 +9,7 @@ import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
 // 新版本含本版本，可以不用添加该注解
 @EnableEurekaClient
 // hystrix使用：3.开启Hystrix功能
-//@EnableCircuitBreaker
+@EnableCircuitBreaker
 public class ProviderApp {
 
     public static void main(String[] args) {

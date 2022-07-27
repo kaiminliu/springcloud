@@ -11,7 +11,6 @@ import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
 // hystrix使用：3.开启Hystrix功能
 @EnableCircuitBreaker
 public class ProviderApp {
-
     public static void main(String[] args) {
         SpringApplication.run(ProviderApp.class, args);
     }

@@ -33,19 +33,19 @@ public class GoodsController {
     // hystrix使用：2.指定降级方法
     @HystrixCommand(
             fallbackMethod = "findOne_fallback",
-            // HystrixCommandProperties构造器
+            // hystrix使用：5. 配置超时时间，详细name和value可以查看HystrixCommandProperties.java的构造器
             commandProperties = {
-                @HystrixProperty(name="execution.isolation.thread.timeoutInMilliseconds", value = "2000")
+                    @HystrixProperty(name="execution.isolation.thread.timeoutInMilliseconds", value = "1000")
             }
     )
     public Goods findOne(@PathVariable("id") int id) throws InterruptedException {
         Goods one = goodsService.findOne(id);
 
-        // 模拟降级环境
-        // 1.异常
-        int i = 1/0;
-        // 2.超时
-        //Thread.sleep(3000);
+        // hystrix使用：4.测试：模拟降级环境
+        // 4.1 异常
+        //int i = 1/0;
+        // 4.2 超时
+        Thread.sleep(3000);
 
         // 将服务端口添加到返回对象中
         one.setTitle(one.getTitle() + ":" + port);

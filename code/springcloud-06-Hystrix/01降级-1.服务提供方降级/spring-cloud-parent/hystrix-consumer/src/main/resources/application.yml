@@ -14,3 +14,8 @@ eureka:
     fetch-registry: true
     service-url:
       defualtZone: http://localhost:8761/eureka # Eureka Server URL，根据实际情况编写
+
+
+ribbon:
+  ConnectTimeout: 5000 # 连接超时时间，ms
+  ReadTimeout: 5000 # 逻辑超时时间，ms
