@@ -53,21 +53,84 @@ HYSTRIX-PROVIDER 改为 GATEWAY-PROVIDER
 hystrix-provider 改为 gateway-provider
 
 ### 快熟入门
-0.环境搭建
-直接复制 spring-cloud-06-hystrix
-1.搭建网关模块
-2.映入依赖
-3.编写启动类
-4.编写配置文件
-    路由规则
-        setRoutes
-            RouteDefinition
-                属性id 
-                属性predicates 条件
-                属性filter 
-                属性uri 服务提供方访问路径
-                属性order
-5.启动测试
+#### 1、搭建网关模块 api-gateway
+
+#### 2、引入依赖
+```xml
+<dependencies>
+    <!--引入gateway 网关-->
+    <dependency>
+        <groupId>org.springframework.cloud</groupId>
+        <artifactId>spring-cloud-starter-gateway</artifactId>
+    </dependency>
+
+    <!-- eureka-client -->
+    <dependency>
+        <groupId>org.springframework.cloud</groupId>
+        <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
+    </dependency>
+</dependencies>
+```
+
+#### 3、编写启动类
+```java
+@SpringBootApplication
+@EnableEurekaClient
+public class GatewayApp {
+
+    public static void main(String[] args) {
+        SpringApplication.run(GatewayApp.class, args);
+    }
+}
+
+```
+#### 4、编写配置文件
+- 路由规则
+    - setRoutes
+        - RouteDefinition
+            - 属性id 
+            - 属性predicates 条件
+            - 属性filter 
+            - 属性uri 服务提供方访问路径
+            - 属性order
+    
+```yaml
+server:
+  port: 81
+
+spring:
+  application:
+    name: api-gateway
+
+  cloud:
+    # 网关配置
+    gateway:
+      # 路由配置：转发规则
+      routes: #集合。
+        # id: 唯一标识。默认是一个UUID
+        # uri: 转发路径
+        # predicates: 条件,用于请求网关路径的匹配规则
+        # filters：配置局部过滤器的
+        - id: gateway-provider
+          # 静态路由
+          uri: http://localhost:9001
+          predicates:
+            - Path=/goods/**
+
+        - id: gateway-consumer
+          uri: http://localhost:9002
+          predicates:
+            - Path=/order/**
+
+```
+#### 5、启动测试
+依次启动 eureka-server、gateway-provider、gateway-consumer、api-gateway
+
+通过 api-gateway 访问 gateway-provider、gateway-consumer
+- 访问gateway-provider
+    - http://localhost/goods/2
+- 访问gateway-consumer
+    - http://localhost/order/goods/feign/2
 
 ### 静态路由配置
 uri中 ip和端口固定 ，也就是上面快速入门的例子

@@ -19,6 +19,7 @@
         <module>gateway-provider</module>
         <module>gateway-consumer</module>
         <module>eureka-server</module>
+        <module>api-gateway</module>
     </modules>
 
     <dependencies>
