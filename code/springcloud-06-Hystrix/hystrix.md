@@ -20,6 +20,9 @@
 4.限流
 
 
+feign配置hystrix，和ribbon的各种超时配置：https://www.dandelioncloud.cn/article/details/1433361091895992322
+
+
 ### 环境搭建
 
 #### 1、完成模块复制
@@ -245,9 +248,27 @@ public class GoodsController {
 ##### (1) 开启feign对hystrix的支持
 ```yaml
 # 开启feign对hystrix的支持
+# hystrix的executionTimeoutInMilliseconds生效，当请求时间超过1s时，ribbon和hystrix默认超时时间都是1s，就会触发服务消费方降级，不会触发服务提供方的降级方法
+# 所以 这里需要配置ribbon的超时时间 和 hystrix的超时时间
+# 服务消费方的超时时间配置 比 服务提供方，服务消费方timeoutInMilliseconds <= ReadTimeout，长一点才能更好触发降级方法
 feign:
   hystrix:
     enabled: true
+  client:
+    config:
+      default:
+        ReadTimeout: 300000 # 逻辑超时时间，默认1000ms
+        ConnectTimeout: 300000 # 连接超时时间，默认1000ms
+
+hystrix:
+  command:
+    default:  #default全局有效，service id指定应用有效
+      execution:
+        timeout:
+          enabled: true #如果enabled设置为false，则请求超时交给ribbon控制,为true,则超时作为熔断根据
+        isolation:
+          thread:
+            timeoutInMilliseconds: 10000 # 断路器超时时间，默认1000ms
 ```
 ##### (2) 定义feign接口实现类，复写方法，即降级方法
 
@@ -287,7 +308,7 @@ public class ConsumerApp {}
 #### 同时配置时优先级
 优先服务提供方，当服务端宕机采用服务消费方
 
-有个问题：当服务提供方逻辑超时，无论是否设置ribbon时间，都会触发服务提供方的降级方法？？？？？
+有个问题：当服务提供方逻辑超时，无论是否设置ribbon时间，都会触发服务提供方的降级方法？？？？？ （搞定原因：feign.hystrix.enabled开启时，ribbon的ReadTimeout无效，hystrix的executionTimeoutInMilliseconds生效）
 
 原因：服务提供方已经降级过，返回给服务消费方已经是正常的响应信息，所以不会触发消费方的降级
 
@@ -295,13 +316,68 @@ public class ConsumerApp {}
 ### 熔断（机制原理要重新看视频？？？？？）
 Hystrix熔断机制，用于监控微服务调用情况，当失败的情况达到预定的阈值（5秒失败20次），会打开断路器，拒绝所有请求，直到服务恢复正常为止
 
+默认：5s内如果出现至少20次请求且有50%的请求被降级，将会打开断路器，拒绝所以请求，之后断路器半开，如果有请求可以正常处理，随后自动关闭断路器
+
 熔断器默认是开启的，不配置也可以
 
 支持异常
 
 https://3g.163.com/dy/article/G9FCJHN90511CUMI.html
 
-测试（代码看给的）
+#### 1、环境搭建
+直接复制 “springcloud-06-hystrix 01降级-3.服务消费方和服务提供方同时降级”的 spring-cloud-parent 到 “02熔断” 下
+
+#### 2、制造测试环境
+- 监控时间 设置为10s
+- 失败次数 设置为10次
+- id为1的请求，被降级；其他请求正常
+
+```java
+@RestController
+@RequestMapping
+public class GoodsController {
+
+    @GetMapping("/goods/{id}")
+    @HystrixCommand(
+            fallbackMethod = "findOne_fallback",
+            commandProperties = {
+                    //设置Hystrix的超时时间，默认1s
+                    @HystrixProperty(name="execution.isolation.thread.timeoutInMilliseconds",value = "1000"),
+                    //监控时间 默认5000 毫秒 ===
+                    @HystrixProperty(name="circuitBreaker.sleepWindowInMilliseconds",value = "10000"),
+                    //失败次数。默认20次 ===
+                    @HystrixProperty(name="circuitBreaker.requestVolumeThreshold",value = "10"),
+                    //失败率 默认50% ===
+                    @HystrixProperty(name="circuitBreaker.errorThresholdPercentage",value = "50")
+            }
+    )
+    public Goods findOne(@PathVariable("id") int id) {
+        Goods one = goodsService.findOne(id);
+
+        // hystrix熔断测试环境模拟，id为1时，产生异常 ===
+        if(id == 1) {
+            int i = 1/0;
+        }
+
+        // 将服务端口添加到返回对象中
+        one.setTitle(one.getTitle() + ":" + port);
+        return one;
+    }
+
+}
+```
+
+#### 3、启动测试
+依次启动 eureka-server、hystrix-provider、hystrix-consumer
+
+测试具体操作：
+- 打开两个浏览器窗口
+- 两个窗口分别请求
+    - 窗口1：http://localhost:9002/order/goods/feign/1
+    - 窗口2：http://localhost:9002/order/goods/feign/2
+- 两个请求在10s内都请求5次或6次，查看窗口2是否也被降级
+- （接上）如果窗口2被降级，就只请求窗口2，查看窗口2是否在10s后恢复正常
+测试预期效果：是 是
 
 ### 熔断监控
 

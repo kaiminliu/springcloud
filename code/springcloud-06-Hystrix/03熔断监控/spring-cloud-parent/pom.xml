@@ -19,6 +19,7 @@
         <module>hystrix-provider</module>
         <module>hystrix-consumer</module>
         <module>eureka-server</module>
+        <module>hystrix-monitor</module>
     </modules>
 
     <dependencies>

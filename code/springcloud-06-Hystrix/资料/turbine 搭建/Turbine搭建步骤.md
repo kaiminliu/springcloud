@@ -14,13 +14,14 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>hystrix-parent</artifactId>
-        <groupId>com.itheima</groupId>
+        <artifactId>spring-cloud-parent</artifactId>
+        <groupId>cn.liuminkai</groupId>
         <version>1.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>hystrix-monitor</artifactId>
+
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
@@ -47,7 +48,6 @@
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
         </dependency>
-
 
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -190,11 +190,11 @@ public class ConsumerApp {
 
 **2、访问：**
 
-在浏览器访问http://localhost:8769/hystrix/ 进入Hystrix Dashboard界面
+在浏览器访问 http://localhost:8769/hystrix/ 进入Hystrix Dashboard界面（如果没有服务调用操作，访问界面是没有数据的）
 
 ![1585421193757](.\1585421193757.png)
 
-界面中输入监控的Url地址 http://localhost:8769/turbine.stream，监控时间间隔2000毫秒和title，如下图
+界面中输入监控的Url地址  ，监控时间间隔2000毫秒和title，如下图
 
 ![1585421278837](.\1585421278837.png)
 
