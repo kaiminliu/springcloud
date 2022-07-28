@@ -1,6 +1,57 @@
 存在的问题
 
 copy hystrix
+### 环境搭建
+
+#### 1、完成模块复制
+拷贝 “spring-cloud-06-hystrix 02熔断”下spring-cloud-parent 到 “spring-cloud-07-gateway 01快速入门”  下
+
+#### 2、hystrix-consumer，hystrix-provider模块重命名为gateway前缀
+
+#### 3、修改pom.xml和application.yml
+##### 修改module的名字
+spring-cloud-parent的pom.xml
+```xml
+
+    <modules>
+        <module>gateway-provider</module>
+        <module>gateway-consumer</module>
+        <module>eureka-server</module>
+    </modules>
+
+```
+
+consumer模块（port:9002）pom.xml
+```xml
+<artifactId>gateway-consumer</artifactId>
+```
+
+provider模块（port:9001）pom.xml
+```xml
+<artifactId>gateway-provider</artifactId>
+```
+
+##### hystrix-consumer，hystrix-provider修改应用名
+consumer模块（port:9002）application.yml
+```yaml
+spring:
+  application:
+    name: gateway-consumer
+```
+
+provider模块（port:9001）application.yml
+```yaml
+spring:
+  application:
+    name: gateway-provider 
+```
+
+#### 5、可选，修改服务消费方，OrderController.java，调用url的服务名
+HYSTRIX-PROVIDER 改为 GATEWAY-PROVIDER
+
+#### 6、修改服务消费方，GoodsFeignClient.java 注解上的服务名
+hystrix-provider 改为 gateway-provider
+
 ### 快熟入门
 0.环境搭建
 直接复制 spring-cloud-06-hystrix

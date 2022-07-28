@@ -26,7 +26,7 @@ feign配置hystrix，和ribbon的各种超时配置：https://www.dandelioncloud
 ### 环境搭建
 
 #### 1、完成模块复制
-拷贝 “spring-cloud-05-feign 01快速入门”下spring-cloud-parent 到 “spring-cloud-06-hystrix” 降级 或 熔断下
+拷贝 “spring-cloud-05-feign 01快速入门”下spring-cloud-parent 到 “spring-cloud-06-hystrix” 降级下
 
 #### 2、feign-consumer，feign-provider模块重命名为hystrix前缀
 
