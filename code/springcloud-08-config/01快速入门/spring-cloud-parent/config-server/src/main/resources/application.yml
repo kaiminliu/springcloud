@@ -1,0 +1,29 @@
+server:
+  port: 8888
+  #解决http响应数据中文乱码问题 1
+  tomcat:
+    uri-encoding: UTF-8
+
+spring:
+  cloud:
+    config:
+      server:
+        git:
+          uri: https://github.com/kaiminliu/springcloud-config.git  # git 的 远程仓库地址
+      label: main # 分支配置
+
+  application:
+    name:  config-server
+
+  #解决http响应数据中文乱码问题 2
+  http:
+    encoding:
+      charset: UTF-8
+      force: true
+      enabled: true
+
+# Eureka Config
+eureka:
+  client:
+    service-url:
+      defualtZone: http://localhost:8761/eureka # Eureka Server URL，根据实际情况编写

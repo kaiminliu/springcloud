@@ -264,7 +264,7 @@ spring:
 
 #### 11、RemoveHopByHopHeadersFilter GatewayFilter Factory
 
-为原始请求删除[IETF](https://tools.ietf.org/html/draft-ietf-httpbis-p1-messaging-14#section-7.1.3)组织规定的一系列Header，默认删除的Header如下：
+为原始请求删除 [IETF](https://tools.ietf.org/html/draft-ietf-httpbis-p1-messaging-14#section-7.1.3) 组织规定的一系列Header，默认删除的Header如下：
 
 - Connection
 - Keep-Alive
