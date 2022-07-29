@@ -246,11 +246,12 @@ public class GoodsController {}
 ##### （3）添加配置（啥用?????）
 bootstrap.yaml
 ```yaml
+# 暴露refresh端点，也可以直接暴露 *
 management:
   endpoints:
     web:
       exposure:
-        include: '*'
+        include: 'refresh'
 ```
 ##### （4）使用curl工具发送post请求
 curl -X POST http://对应服务ip地址:端口/actuator/refresh
@@ -289,6 +290,20 @@ curl -X POST http://对应服务ip地址:端口/actuator/refresh
 
 #### 4、集成eureka（不清楚，理清楚）
 ##### config server注册到eureka
+pom.xml
+```xml
+<!-- eureka-client  -->
+<dependency>
+    <groupId>org.springframework.cloud</groupId>
+    <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
+</dependency>
+```
+
+启动类开启EurekaClient功能
+```java
+@EnableEurekaClient
+public class ConfigServer {}
+```
 application.yml
 ```yaml
 # Eureka Config
@@ -312,6 +327,7 @@ spring:
       profile: dev
       # 选择分支
       label: main
+      # 从注册中心去寻找config-server地址
       discovery:
         enabled: true
         service-id: config-server # config server 在 eureka 的 应用名，注释uri =====
