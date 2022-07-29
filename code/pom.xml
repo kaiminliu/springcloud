@@ -8,10 +8,7 @@
   <artifactId>code</artifactId>
   <packaging>pom</packaging>
   <version>1.0-SNAPSHOT</version>
-    <modules>
-        <module>springcloud-10-stream/spring-cloud-parent</module>
-    </modules>
-    <name>code</name>
+  <name>code</name>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

@@ -1,0 +1,45 @@
+server:
+  port: 9002
+
+
+spring:
+  application:
+    name: config-consumer # 应用名，可用于替换 RestTemplate 请求的路径名
+  zipkin:
+    base-url: http://localhost:9411/  # 设置zipkin的服务端路径
+  sleuth:
+    sampler:
+      probability: 1 # 采集率 默认 0.1 百分之十。
+
+# Eureka Config
+eureka:
+  instance:
+    hostname: localhost
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defualtZone: http://localhost:8761/eureka # Eureka Server URL，根据实际情况编写
+
+# 开启feign对hystrix的支持
+# hystrix的executionTimeoutInMilliseconds生效，当请求时间超过1s时，ribbon和hystrix默认超时时间都是1s，就会触发服务消费方降级，不会触发服务提供方的降级方法
+# 所以 这里需要配置ribbon的超时时间 和 hystrix的超时时间
+# 服务消费方的超时时间配置 比 服务提供方，服务消费方timeoutInMilliseconds <= ReadTimeout，长一点才能更好触发降级方法
+feign:
+  hystrix:
+    enabled: true
+  client:
+    config:
+      default:
+        ReadTimeout: 300000 # 逻辑超时时间，默认1000ms
+        ConnectTimeout: 300000 # 连接超时时间，默认1000ms
+
+hystrix:
+  command:
+    default:  #default全局有效，service id指定应用有效
+      execution:
+        timeout:
+          enabled: true #如果enabled设置为false，则请求超时交给ribbon控制,为true,则超时作为熔断根据
+        isolation:
+          thread:
+            timeoutInMilliseconds: 10000 # 断路器超时时间，默认1000ms
