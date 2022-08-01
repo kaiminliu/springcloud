@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.PathVariable;
  *
  */
 // openFeign使用：1. 定义接口 2. 接口上添加注解
-@FeignClient(value = "config-provider", fallback = GoodsFeignClientFallback.class)
+@FeignClient(value = "config-provider", qualifier = "goodsFeignClient", fallback = GoodsFeignClientFallback.class)
 public interface GoodsFeignClient {
 
     // openFeign使用：3. 编写调用接口，接口的声明规则 和 提供方接口保持一致。

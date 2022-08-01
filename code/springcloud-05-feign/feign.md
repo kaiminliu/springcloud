@@ -219,3 +219,20 @@ public interface GoodsFeignClient {}
 http://localhost:9002/order/goods/feign/1
 
 ![](feign/image-20220726085938846.png)
+
+
+
+
+FeignClient注入报红解决方案
+1. @EnableClient主键添加qualifier属性，如
+```java
+@FeignClient(value = "config-provider", qualifier = "goodsFeignClient", fallback = GoodsFeignClientFallback.class)
+public interface GoodsFeignClient {}
+```
+
+2. FeignClient接口上添加@Component注解
+```java
+@Component
+@FeignClient(value = "config-provider", fallback = GoodsFeignClientFallback.class)
+public interface GoodsFeignClient {}
+```

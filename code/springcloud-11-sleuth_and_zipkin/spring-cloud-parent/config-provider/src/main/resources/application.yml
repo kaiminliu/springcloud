@@ -13,10 +13,12 @@ spring:
   application:
     name: config-provider # 应用名，可用于替换 RestTemplate 请求的路径名
   zipkin:
-    base-url: http://localhost:9411/  # 设置zipkin的服务端路径
+    base-url: http://localhost:9411 # 设置zipkin的服务端路径
+    sender:
+      type: web
   sleuth:
     sampler:
-      probability: 1 # 采集率 默认 0.1 百分之十。
+      probability: 1 # 采集率 默认 0.1 百分之十
   # config 配置
   cloud:
     config:

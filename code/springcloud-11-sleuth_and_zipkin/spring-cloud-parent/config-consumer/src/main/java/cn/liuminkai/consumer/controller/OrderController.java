@@ -3,6 +3,7 @@ package cn.liuminkai.consumer.controller;
 import cn.liuminkai.consumer.feign.GoodsFeignClient;
 import cn.liuminkai.consumer.pojo.Goods;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
@@ -80,7 +81,7 @@ public class OrderController {
     public Goods findGoodsByIdUseFeign(@PathVariable("id") int id) {
         // openFeign使用：4.2 调用接口方法完成远程调用
         Goods one = goodsFeignClient.findOne(id);
-        one.setTitle(info);
+        //one.setTitle(info);
         return one;
     }
 }

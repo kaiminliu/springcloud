@@ -2,6 +2,7 @@
 2. eureka 常用配置，一些url和显示参数不了解
 3. hystrix 熔断机制原理要重新看视频 超时环境好像不行，熔断监控也要重新看，图形不懂啥意思
 4. config  provider 启动会报错
+5. 配置文件 有一些警告，提示 can't resovle
 
 
 
